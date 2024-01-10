@@ -6,7 +6,8 @@ WHERE ID%2 =0
 SELECT COUNT(*)-COUNT(DISTINCT CITY) FROM STATION
 
 --EX3
-
+SELECT CEILING(AVG(Salary)-AVG(REPLACE(Salary,'0','')))
+FROM EMPLOYEES 
 --EX4
 SELECT ROUND((SUM(item_count*order_occurrences)::DECIMAL / SUM(order_occurrences)),1) AS mean 
 FROM items_per_order;
