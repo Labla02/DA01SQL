@@ -12,7 +12,7 @@ FROM EMPLOYEES
 SELECT ROUND((SUM(item_count*order_occurrences)::DECIMAL / SUM(order_occurrences)),1) AS mean 
 FROM items_per_order;
 --SELECT ROUND(CAST(SUM(item_count*order_occurrences)/ SUM(order_occurrences) AS DECIMAL),1) AS mean 
-FROM items_per_order;
+--FROM items_per_order;
 
 --EX5
 SELECT candidate_id	FROM candidates
