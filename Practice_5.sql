@@ -116,5 +116,31 @@ LEFT JOIN public.customer as b
 ON a.address_id=b.address_id
 
 --Q7
+SELECT b.city, SUM(d.amount) AS doanh_thu
+FROM public.address AS a
+LEFT JOIN city as b
+ON a.city_id=b.city_id
+LEFT JOIN public.customer as c
+ON a.address_id=c.address_id
+LEFT JOIN public.payment AS d
+ON c.customer_id=d.customer_id
+GROUP BY b.city
+HAVING SUM(d.amount) IS NOT NULL
+ORDER BY doanh_thu DESC
+LIMIT 1
 
 --Q8
+SELECT (b.city || ', ' || e.country) AS city, SUM(d.amount) AS doanh_thu
+FROM public.address AS a
+LEFT JOIN city as b
+ON a.city_id=b.city_id
+LEFT JOIN public.customer as c
+ON a.address_id=c.address_id
+LEFT JOIN public.payment AS d
+ON c.customer_id=d.customer_id
+LEFT JOIN public.country AS e
+ON b.country_id=e.country_id
+GROUP BY b.city, e.country
+HAVING SUM(d.amount) IS NOT NULL
+ORDER BY doanh_thu
+LIMIT 1
