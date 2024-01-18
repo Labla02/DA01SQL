@@ -31,6 +31,12 @@ ON a.user_id=b.user_id
 GROUP BY b.age_bucket
 
 --EX4
+SELECT a.customer_id
+FROM customer_contracts a
+JOIN products AS b 
+ON a.product_id = b.product_id
+GROUP BY a.customer_id
+HAVING COUNT(DISTINCT b.product_category) = (SELECT COUNT(DISTINCT product_category) FROM products)
 
 --EX5
 SELECT e.employee_id, e.name, COUNT(r.employee_id) AS reports_count,
