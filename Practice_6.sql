@@ -7,6 +7,24 @@ FROM job_listings
 GROUP BY company_id, title, description) AS a
 WHERE job_count > 1;
 --EX2
+WITH ApplianceSpend AS
+(SELECT product, SUM(spend) AS total_appliance FROM product_spend
+WHERE category='appliance' and EXTRACT(YEAR FROM transaction_date) = 2022
+GROUP BY product
+ORDER BY total_appliance DESC
+LIMIT 2),
+ElectronicsSpend AS
+(SELECT product, SUM(spend) AS total_electronics FROM product_spend
+WHERE category='electronics' and EXTRACT(YEAR FROM transaction_date) = 2022
+GROUP BY product
+ORDER BY total_electronics DESC
+LIMIT 2)
+
+SELECT 'appliance' AS category, product, total_appliance AS total_spend
+FROM ApplianceSpend
+UNION ALL
+SELECT 'electronics' AS category, product, total_electronics AS total_spend
+FROM ElectronicsSpend
 --EX3
 WITH call_records AS (
 SELECT policy_holder_id, COUNT(case_id) AS call_count
@@ -25,7 +43,27 @@ ON a.page_id=b.page_id
 WHERE liked_date IS NULL
 ORDER BY a.page_id ASC
 --EX5
+SELECT EXTRACT(MONTH FROM event_date) AS month,
+COUNT(DISTINCT user_id) AS monthly_active_users
+FROM user_actions
+WHERE EXTRACT(MONTH FROM event_date) = 7
+AND user_id IN 
+(SELECT user_id
+FROM user_actions
+WHERE EXTRACT(MONTH FROM event_date) = 6
+)
+GROUP BY month
 --EX6
+SELECT
+    EXTRACT(YEAR FROM trans_date) || '-' || EXTRACT(MONTH FROM trans_date) AS month,
+    country,
+    COUNT(id) AS trans_count,
+    COUNT(CASE WHEN state = 'approved' THEN id END) AS approved_count,
+    SUM(amount) AS trans_total_amount,
+    SUM(CASE WHEN state = 'approved' THEN amount END) AS approved_total_amount
+FROM Transactions
+GROUP BY month, country
+ORDER BY month, country DESC  
 --EX7
 SELECT product_id, year as first_year, quantity, price
 FROM Sales
