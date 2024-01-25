@@ -53,9 +53,12 @@ LAG(tweet_count, 2) OVER(PARTITION BY user_id ORDER BY tweet_date) AS lag_2
 FROM tweets)
 
 SELECT user_id, tweet_date,
-ROUND((tweet_count+lag_1+lag_2)/3, 2) AS rolling_avg_3d
+CASE 
+  WHEN lag_1 IS NULL AND lag_2 IS NULL THEN ROUND(tweet_count, 2)
+  WHEN lag_1 IS NOT NULL AND lag_2 IS NULL THEN ROUND((tweet_count + lag_1) / 2.0, 2)
+  ELSE ROUND((tweet_count + lag_1 + lag_2) / 3.0, 2)
+  END AS rolling_avg_3d
 FROM A
-WHERE lag_1 IS NOT NULL AND lag_2 IS NOT NULL
 --EX6
 WITH A AS
 (SELECT merchant_id, credit_card_id, amount, transaction_timestamp,
