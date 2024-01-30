@@ -6,12 +6,11 @@ ALTER COLUMN orderdate TYPE timestamp USING TO_TIMESTAMP(orderdate, 'MM/DD/YYYY 
 
 ALTER TABLE public.sales_dataset_rfm_prj
 ALTER COLUMN ordernumber TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN quantityordered TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN orderlinenumber TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN sales TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN msrp TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN phone TYPE numeric USING TRIM(ordernumber)::numeric,
-ALTER COLUMN postalcode TYPE numeric USING TRIM(ordernumber)::numeric
+ALTER COLUMN quantityordered TYPE numeric USING TRIM(quantityordered)::numeric,
+ALTER COLUMN orderlinenumber TYPE numeric USING TRIM(orderlinenumber)::numeric,
+ALTER COLUMN sales TYPE numeric USING TRIM(sales)::numeric,
+ALTER COLUMN msrp TYPE numeric USING TRIM(msrp)::numeric,
+ALTER COLUMN priceeach TYPE numeric USING TRIM(priceeach)::numeric
 
 --task 2
 SELECT *
@@ -40,12 +39,12 @@ RIGHT(contactfullname, LENGTH(contactfullname) - POSITION('-' IN contactfullname
 FROM public.sales_dataset_rfm_prj) AS b
 WHERE a.contactfullname = b.contactfullname;
 
+--task 4
 ALTER TABLE public.sales_dataset_rfm_prj
 ADD COLUMN QTR_ID varchar(50),
 ADD COLUMN MONTH_ID varchar(50),
 ADD COLUMN YEAR_ID varchar(50)
 
---task 4
 UPDATE public.sales_dataset_rfm_prj AS a
 SET 
     QTR_ID = b.QTR_ID,
@@ -83,7 +82,7 @@ FROM public.sales_dataset_rfm_prj)
 
 SELECT quantityordered, ((quantityordered-avg)/stddev) as z_score
 FROM cte
-WHERE ABS((quantityordered-avg)/stddev) > 2
+WHERE ABS((quantityordered-avg)/stddev) > 3
 --Xử lý outlier
 UPDATE public.sales_dataset_rfm_prj
 SET quantityordered= (SELECT AVG(quantityordered) FROM public.sales_dataset_rfm_prj)
