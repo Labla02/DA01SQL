@@ -58,3 +58,36 @@ EXTRACT(MONTH FROM orderdate) AS MONTH_ID,
 EXTRACT(YEAR FROM orderdate) AS YEAR_ID
 FROM public.sales_dataset_rfm_prj) AS b
 WHERE a.orderdate = b.orderdate;
+
+--task 5
+--c1: box plot
+WITH twt_minmax AS (
+SELECT q1-1.5*iqr as min_value, q3+1.5*iqr as max_value
+FROM (
+SELECT 
+percentile_cont(0.25) WITHIN GROUP(ORDER BY quantityordered) AS q1,
+percentile_cont(0.75) WITHIN GROUP(ORDER BY quantityordered) AS q3,
+percentile_cont(0.75) WITHIN GROUP(ORDER BY quantityordered)-percentile_cont(0.25) WITHIN GROUP(ORDER BY QUANTITYORDERED) as IQR
+FROM public.sales_dataset_rfm_prj) AS a)
+
+SELECT quantityordered FROM public.sales_dataset_rfm_prj
+WHERE quantityordered <(select min_value from twt_minmax)
+OR quantityordered >(select max_value from twt_minmax)
+
+--c2: z-score
+WITH cte AS (
+SELECT quantityordered,
+(SELECT AVG(quantityordered) AS avg FROM public.sales_dataset_rfm_prj),
+(SELECT stddev(quantityordered) as stddev FROM public.sales_dataset_rfm_prj)
+FROM public.sales_dataset_rfm_prj)
+
+SELECT quantityordered, ((quantityordered-avg)/stddev) as z_score
+FROM cte
+WHERE ABS((quantityordered-avg)/stddev) > 2
+--Xử lý outlier
+UPDATE public.sales_dataset_rfm_prj
+SET quantityordered= (SELECT AVG(quantityordered) FROM public.sales_dataset_rfm_prj)
+WHERE quantityordered IN (SELECT quantityordered FROM twt_outlier);
+
+DELETE FROM public.sales_dataset_rfm_prj
+WHERE quantityordered IN (SELECT quantityordered FROM twt_outlier); 
